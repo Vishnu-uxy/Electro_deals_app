@@ -19,10 +19,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+
+
 import com.cts.dto.UserDto;
 import com.cts.dto.UserLoginDto;
 import com.cts.model.Product;
 import com.cts.model.User;
+import com.cts.service.JwtService;
 import com.cts.service.ProductService;
 import com.cts.service.UserService;
 
@@ -34,8 +37,13 @@ public class UserController {
 	
 	private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 	
-	@Autowired
+
+	
+	@Autowired 
 	private UserService userService;
+	
+	@Autowired
+	private JwtService jwtService;
 	
 	@Autowired 
 	private AuthenticationManager authenticationManager;
@@ -53,23 +61,30 @@ public class UserController {
 		user.setEmail(userDto.getEmail()); 
 		user.setPassword(encoder.encode(userDto.getPassword())); 
 		//user.setPassword(userDto.getPassword()); 
-//		user.setRoles("USER");
-		return userService.addUser(user);
+        //user.setRoles("USER");
+		User regisUser=userService.addUser(user);
+		logger.info("Successfully registered user with email: {}", userDto.getEmail());
+		return regisUser;
 	}
 	@PostMapping("/login")
 	public String login(@Valid @RequestBody UserLoginDto userLoginDto) {
-	    logger.info("User login attempt with email: {}", userLoginDto.getEmail());
-	    try{Authentication authentication = authenticationManager.authenticate(
+		
+		logger.info("User login attempt with email: {}", userLoginDto.getEmail());
+	   
+	    Authentication authentication = authenticationManager.authenticate(
 	        new UsernamePasswordAuthenticationToken(userLoginDto.getEmail(), userLoginDto.getPassword())
 	    );
-	    SecurityContextHolder.getContext().setAuthentication(authentication);
-	    logger.info("User logged in successfully with email: {}", userLoginDto.getEmail());
-	    return "Login successful";
+	    if(authentication.isAuthenticated()) {
+	    	String token= jwtService.generateToken(userLoginDto.getEmail());
+	    	logger.info("User logged in successfully, generated token for email: {}", userLoginDto.getEmail());
+	        return token;
 	    }
-	    catch(Exception e) {
-	    	logger.error("Login failed for email: {} with error: {}",userLoginDto.getEmail(),e.getMessage());
-	    	return "Login failed: "+e.getMessage();
+	    else {
+	    	logger.warn("Login failed for email: {}", userLoginDto.getEmail());
+	    	return "Login Failed";
 	    }
+	    
+	    
 	}
 
 	@PreAuthorize("hasRole('USER')")
@@ -77,6 +92,12 @@ public class UserController {
 	public List<Product> viewAllProduct(){
 		logger.info("Fetching all products");
 		return productService.viewAllProduct();
+	}
+	
+	@GetMapping("/hello")
+	public String getMessage() {
+		logger.info("Hello endpoint accessed");
+		return "hello";
 	}
 	
 

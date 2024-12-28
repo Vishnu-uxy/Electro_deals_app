@@ -31,7 +31,7 @@ public class AdminController {
 	
 	private static final Logger logger = LoggerFactory.getLogger(AdminController.class);
 
-	@Autowired
+	@Autowired                                                                                    
 	private ProductService productService;
 	
 	@PreAuthorize("hasRole('ADMIN')")
@@ -43,9 +43,11 @@ public class AdminController {
 		product.setDiscount(productDto.getDiscount());
 		product.setPrice(productDto.getPrice());
 		product.setProduct_id(productDto.getProductId());
-		return productService.addProduct(product);
+		Product addedProduct=productService.addProduct(product);
+		logger.info("Successfully added product with ID: {}", productDto.getProductId()); 
+		return addedProduct;
 	}
-	@PreAuthorize("hasRole('USER')")
+	@PreAuthorize("hasRole('ADMIN')")
 	@GetMapping("/viewProducts")
 	public List<Product> viewAllProduct(){
 		logger.info("Fetching all products");
@@ -62,6 +64,7 @@ public class AdminController {
 		product.setPrice(productDto.getPrice());
 		product.setProduct_id(productDto.getProductId());
 		Product updatedProduct = productService.updateProduct(productId, product);
+		logger.info("Successfully updated product with ID: {}", productId);
 		return ResponseEntity.ok(updatedProduct); 
 		}
 	
@@ -70,6 +73,7 @@ public class AdminController {
 	public ResponseEntity<Void> deleteProduct(@PathVariable String product_id) { 
 		logger.info("Deleting product with ID: {}", product_id);
 		productService.deleteProduct(product_id); 
+		logger.info("Successfully deleted product with ID: {}", product_id);
 		return ResponseEntity.noContent().build();
 		}
 	
