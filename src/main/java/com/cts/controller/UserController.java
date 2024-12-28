@@ -1,13 +1,29 @@
 package com.cts.controller;
 
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.List;
+
+import org.slf4j.Logger; 
+import org.slf4j.LoggerFactory;
+
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.cts.dto.UserDto;
+import com.cts.dto.UserLoginDto;
+import com.cts.model.Product;
 import com.cts.model.User;
+import com.cts.service.ProductService;
 import com.cts.service.UserService;
 
 import jakarta.validation.Valid;
@@ -16,16 +32,51 @@ import jakarta.validation.Valid;
 @RequestMapping("/user")
 public class UserController {
 	
+	private static final Logger logger = LoggerFactory.getLogger(UserController.class);
+	
 	@Autowired
 	private UserService userService;
 	
+	@Autowired 
+	private AuthenticationManager authenticationManager;
+	
+	@Autowired
+	private ProductService productService;
+	
+	private BCryptPasswordEncoder encoder=new BCryptPasswordEncoder(12);
+	
 	@PostMapping("/register")
 	public User registerUser(@Valid @RequestBody UserDto userDto) {
+		logger.info("Registering user with email: {}", userDto.getEmail());
 		User user = new User(); 
 		user.setName(userDto.getName()); 
 		user.setEmail(userDto.getEmail()); 
-		user.setPassword(userDto.getPassword()); 
+		user.setPassword(encoder.encode(userDto.getPassword())); 
+		//user.setPassword(userDto.getPassword()); 
+//		user.setRoles("USER");
 		return userService.addUser(user);
+	}
+	@PostMapping("/login")
+	public String login(@Valid @RequestBody UserLoginDto userLoginDto) {
+	    logger.info("User login attempt with email: {}", userLoginDto.getEmail());
+	    try{Authentication authentication = authenticationManager.authenticate(
+	        new UsernamePasswordAuthenticationToken(userLoginDto.getEmail(), userLoginDto.getPassword())
+	    );
+	    SecurityContextHolder.getContext().setAuthentication(authentication);
+	    logger.info("User logged in successfully with email: {}", userLoginDto.getEmail());
+	    return "Login successful";
+	    }
+	    catch(Exception e) {
+	    	logger.error("Login failed for email: {} with error: {}",userLoginDto.getEmail(),e.getMessage());
+	    	return "Login failed: "+e.getMessage();
+	    }
+	}
+
+	@PreAuthorize("hasRole('USER')")
+	@GetMapping("/viewProducts")
+	public List<Product> viewAllProduct(){
+		logger.info("Fetching all products");
+		return productService.viewAllProduct();
 	}
 	
 

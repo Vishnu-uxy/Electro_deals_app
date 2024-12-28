@@ -10,18 +10,18 @@ import lombok.Data;
 @Data
 public class ProductDto {
 
-	@NotBlank
+	@NotBlank(message="productId can not be blank")
     
     private String productId;  
 
-	@NotBlank
+	@NotBlank(message="description can not be blank")
     private String description;  
 
-    @NotNull
+    @NotNull(message="price can not be null")
     @Min(value = 0, message = "Price must be a positive number")
     private int price;
 
-    @NotNull
+    @NotNull(message="price can not be null")
     @Min(value = 0, message = "Price must be a positive number")
     private int discount;
 }

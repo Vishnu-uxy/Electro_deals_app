@@ -19,4 +19,17 @@ public class GlobalExceptionHandler {
 	public ResponseEntity<String> handleUserAlreadyExistException(UserAlreadyExistException ex) { 
 		return new ResponseEntity<>(ex.getMessage(), HttpStatus.CONFLICT); 
 	}
+	@ExceptionHandler(ResourceNotFoundException.class) 
+	public ResponseEntity<String> handleResourceNotFoundException(ResourceNotFoundException ex) { 
+		return new ResponseEntity<>("EndPoint not found", HttpStatus.NOT_FOUND); 
+		}
+	@ExceptionHandler(UserNameNotFoundException.class) 
+	public ResponseEntity<String> handleUserNameNotFoundException(UserNameNotFoundException ex) { 
+		return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND); 
+		}
+	@ExceptionHandler(Exception.class) 
+	public ResponseEntity<String> handleGeneralException(Exception ex) { 
+		return new ResponseEntity<>(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR); 
+		}
+	
 }
