@@ -6,11 +6,11 @@ import lombok.Data;
 
 @Data
 public class UserLoginDto {
-	
-	@NotBlank 
-	@Email 
+
+	@NotBlank
+	@Email
 	private String email;
 
-	@NotBlank 
+	@NotBlank
 	private String password;
 }

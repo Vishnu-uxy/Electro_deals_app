@@ -13,32 +13,27 @@ import com.cts.repo.UserRepo;
 
 @Service
 public class UserService {
-	
+
 	@Autowired
 	private UserRepo userRepo;
-	
-	
 
 	public User addUser(User user) {
-		if(userRepo.existsByEmail(user.getEmail())) {
+		if (userRepo.existsByEmail(user.getEmail())) {
 			throw new UserAlreadyExistException("user already exists");
 		}
-//		user.getRoles().add("USER"); 
 		user.setRoles("USER");
 		return userRepo.save(user);
 	}
-	public List<User> findAllUser(){
+
+	public List<User> findAllUser() {
 		return userRepo.findAll();
 	}
-	public Optional<User> findUserById(long id){
-		User user=userRepo.findById(id).orElse(null);
-		if(user!=null) {
-			return userRepo.findById(id);
-		}
-		else {
-			throw new RuntimeException("User does not exist with this id");
-		}
+
+	public Optional<User> findUserById(long id) {
+	    return userRepo.findById(id);
 	}
+
+
 	public void deleteUser(long id) {
 		userRepo.deleteById(id);
 	}

@@ -23,45 +23,40 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityConfig {
-	
+
 	@Autowired
 	private UserDetailsService userDetailsService;
-	
+
 	@Autowired
 	private JwtFilter jwtFilter;
-	
+
 	@Bean
 	AuthenticationProvider authProvider() {
-		DaoAuthenticationProvider provider=new DaoAuthenticationProvider();
+		DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
 		provider.setUserDetailsService(userDetailsService);
 		provider.setPasswordEncoder(new BCryptPasswordEncoder(12));
 		return provider;
 	}
 
-    @Bean
-    SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
-		http
-		     .csrf(customizer -> customizer.disable())
-		     .authorizeHttpRequests(request -> request
-		     .requestMatchers("/user/register","/user/login").permitAll()
-		     .anyRequest().authenticated())
-		     .httpBasic(Customizer.withDefaults())
-			 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-		     .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+	@Bean
+	SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+		http.csrf(customizer -> customizer.disable())
+				.authorizeHttpRequests(request -> request.requestMatchers("/user/register", "/user/login","/admin/login").permitAll()
+						.anyRequest().authenticated())
+				.httpBasic(Customizer.withDefaults())
+				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+				.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 		return http.build();
 	}
 
-//    @Bean
-//    UserDetailsService userDetailsService() {
-//		return new InMemoryUserDetailsManager();
-//	}
-    @Bean 
-    AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception { 
-    	return authenticationConfiguration.getAuthenticationManager();
-    	}
-    
-    @Bean
-     BCryptPasswordEncoder passwordEncoder() { 
-    	return new BCryptPasswordEncoder(12); 
-    	}
+	@Bean
+	AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration)
+			throws Exception {
+		return authenticationConfiguration.getAuthenticationManager();
+	}
+
+	@Bean
+	BCryptPasswordEncoder passwordEncoder() {
+		return new BCryptPasswordEncoder(12);
+	}
 }
