@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.cts.dto.ProductResponseDto;
 import com.cts.dto.UserDto;
 import com.cts.dto.UserLoginDto;
 import com.cts.model.Product;
@@ -55,8 +56,6 @@ public class UserController {
 		user.setName(userDto.getName());
 		user.setEmail(userDto.getEmail());
 		user.setPassword(encoder.encode(userDto.getPassword()));
-		// user.setPassword(userDto.getPassword());
-		// user.setRoles("USER");
 		User regisUser = userService.addUser(user);
 		logger.info("Successfully registered user with email: {}", userDto.getEmail());
 		return regisUser;
@@ -82,15 +81,10 @@ public class UserController {
 
 	@PreAuthorize("hasRole('USER')")
 	@GetMapping("/viewProducts")
-	public List<Product> viewAllProduct() {
+	public List<ProductResponseDto> viewAllProduct() {
 		logger.info("Fetching all products");
 		return productService.viewAllProduct();
 	}
 
-	@GetMapping("/hello")
-	public String getMessage() {
-		logger.info("Hello endpoint accessed");
-		return "hello";
-	}
 
 }

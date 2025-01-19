@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.cts.exceptions.UserAlreadyExistException;
+import com.cts.exceptions.UserNameNotFoundException;
 import com.cts.model.User;
 import com.cts.repo.UserRepo;
 
@@ -30,7 +31,7 @@ public class UserService {
 	}
 
 	public Optional<User> findUserById(long id) {
-	    return userRepo.findById(id);
+		return Optional.ofNullable(userRepo.findById(id).orElseThrow(() -> new UserNameNotFoundException("User not found with ID: " + id)));
 	}
 
 

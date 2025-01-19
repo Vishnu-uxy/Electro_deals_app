@@ -22,4 +22,6 @@ public class ProductDto {
 	@NotNull(message = "price can not be null")
 	@Min(value = 0, message = "Price must be a positive number")
 	private int discount;
+	
+	
 }

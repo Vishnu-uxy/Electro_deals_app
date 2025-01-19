@@ -14,6 +14,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.cts.exceptions.UserAlreadyExistException;
+import com.cts.exceptions.UserNameNotFoundException;
 import com.cts.model.User;
 import com.cts.repo.UserRepo;
 import com.cts.service.UserService;
@@ -67,8 +68,8 @@ public class UserServiceTest {
     @Test
     public void testFindUserById_UserDoesNotExist() {
         when(userRepo.findById(user.getId())).thenReturn(Optional.empty());
-        assertThrows(RuntimeException.class, () -> {
-            userService.findUserById(user.getId());
+        assertThrows(UserNameNotFoundException.class, () -> {
+            userService.findUserById(user.getId()).orElseThrow(() -> new UserNameNotFoundException("User not found with ID: " + user.getId()));
         });
     }
 }

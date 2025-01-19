@@ -46,7 +46,7 @@ public class JwtService {
 		Map<String, Object> claims = new HashMap<>();
 		String token = Jwts.builder().setClaims(claims).setSubject(email)
 				.setIssuedAt(new Date(System.currentTimeMillis()))
-				.setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 3))
+				.setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 30))
 				.signWith(getKey(), SignatureAlgorithm.HS256).compact();
 
 		return token;

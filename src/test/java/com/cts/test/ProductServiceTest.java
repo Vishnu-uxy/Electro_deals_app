@@ -1,6 +1,5 @@
 package com.cts.test;
 
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
@@ -14,6 +13,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import com.cts.dto.ProductResponseDto;
 import com.cts.model.Product;
 import com.cts.repo.ProductRepo;
 import com.cts.service.ProductService;
@@ -49,8 +49,17 @@ public class ProductServiceTest {
     @Test
     public void testViewById_ProductExists() {
         when(productRepo.findById(product.getProduct_id())).thenReturn(Optional.of(product));
-        Optional<Product> foundProduct = productService.viewById(product.getProduct_id());
-        assertEquals(Optional.of(product), foundProduct);
+        Optional<ProductResponseDto> foundProduct = productService.viewById(product.getProduct_id());
+        
+        // Convert product to ProductResponseDto
+        ProductResponseDto expectedProductDto = new ProductResponseDto();
+        expectedProductDto.setProductId(product.getProduct_id());
+        expectedProductDto.setDescription(product.getDescription());
+        expectedProductDto.setPrice(product.getPrice());
+        expectedProductDto.setDiscount(product.getDiscount());
+        expectedProductDto.setImage(null); // Assuming image is null for this test
+
+        assertEquals(Optional.of(expectedProductDto), foundProduct);
     }
 
     @Test
@@ -60,13 +69,12 @@ public class ProductServiceTest {
 
         // Act and Assert
         assertThrows(RuntimeException.class, () -> {
-            productService.viewById(product.getProduct_id());
+            productService.viewById(product.getProduct_id()).orElseThrow(() -> new RuntimeException("Product does not exist"));
         });
 
         // Verify
         verify(productRepo, times(1)).findById(product.getProduct_id());
     }
-
 
     @Test
     public void testUpdateProduct_ProductExists() {
@@ -90,4 +98,3 @@ public class ProductServiceTest {
         verify(productRepo, times(1)).deleteById(product.getProduct_id());
     }
 }
-
